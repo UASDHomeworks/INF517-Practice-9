@@ -1,88 +1,77 @@
-document.getElementById('datosForm').addEventListener('submit', function(e) {
-  e.preventDefault();
 
-  // Capturar datos
-  const nombre = document.getElementById('nombre').value;
-  const edad = document.getElementById('edad').value;
-  const categoria = document.getElementById('categoria').value;
-  const puntuacion = parseInt(document.getElementById('puntuacion').value);
+const ventasPorAnio = {
+  2023: [120000, 135000, 110000, 150000, 170000, 160000, 180000, 195000, 175000, 165000, 155000, 200000],
+  2024: [145000, 158000, 172000, 168000, 185000, 195000, 210000, 225000, 205000, 195000, 215000, 240000],
+  2025: [160000, 175000, 190000, 195000, 210000, 220000, 235000, 250000, 230000, 225000, 245000, 280000]
+};
 
-  // Mostrar resultados
-  document.getElementById('verNombre').textContent = nombre;
-  document.getElementById('verEdad').textContent = edad;
-  document.getElementById('verCategoria').textContent = categoria;
-  document.getElementById('verPuntuacion').textContent = puntuacion;
+const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
-  document.getElementById('resultados').classList.remove('hidden');
+let chartInstance = null;
 
-  // Datos simulados para los gráficos
-  const categorias = ['A', 'B', 'C', 'D'];
-  const puntuaciones = [
-    Math.floor(Math.random() * 6) + 5,
-    Math.floor(Math.random() * 6) + 5,
-    Math.floor(Math.random() * 6) + 5,
-    Math.floor(Math.random() * 6) + 5
-  ];
-  puntuaciones[categorias.indexOf(categoria)] = puntuacion; // Real puntuacion
-  // basicamente la grafica se adapta a el valor de puntuacion que ponga
-  // Gráfico de Barras
-  new Chart(document.getElementById('barChart'), {
-    type: 'bar',
+function generarGrafico() {
+  const year = document.getElementById('year').value;
+  const type = document.getElementById('chartType').value;
+  const data = ventasPorAnio[year];
+
+  // Calcular total y mejor mes
+  const total = data.reduce((a, b) => a + b, 0);
+  const maxVenta = Math.max(...data);
+  const mejorMes = meses[data.indexOf(maxVenta)];
+
+  document.getElementById('totalSales').textContent = `$${total.toLocaleString()}`;
+  document.getElementById('bestMonth').textContent = `${mejorMes} ($${maxVenta.toLocaleString()})`;
+
+  // Destruir gráfico anterior si existe
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  const ctx = document.getElementById('salesChart').getContext('2d');
+  
+  chartInstance = new Chart(ctx, {
+    type: type,
     data: {
-      labels: categorias,
+      labels: meses,
       datasets: [{
-        label: 'Puntuación por Categoría',
-        data: puntuaciones,
-        backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#f5576c']
-      }]
-    },
-    options: { plugins: { title: { display: true, text: 'Barras - Comparativa' } } }
-  });
-
-  // Gráfico Circular
-  new Chart(document.getElementById('pieChart'), {
-    type: 'doughnut',
-    data: {
-      labels: categorias,
-      datasets: [{
-        data: puntuaciones,
-        backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#f5576c']
-      }]
-    },
-    options: { plugins: { title: { display: true, text: 'Distribución por Categoría' } } }
-  });
-
-  // Gráfico de Líneas (evolución simulada)
-  new Chart(document.getElementById('lineChart'), {
-    type: 'line',
-    data: {
-      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
-      datasets: [{
-        label: 'Tu progreso',
-        data: [4, 5, 6, 7, 8, puntuacion],
-        borderColor: '#667eea',
+        label: `Ventas ${year}`,
+        data: data,
+        backgroundColor: type === 'line' 
+          ? 'rgba(99, 102, 241, 0.1)' 
+          : 'rgba(99, 102, 241, 0.6)',
+        borderColor: '#6366f1',
+        borderWidth: 3,
+        pointBackgroundColor: '#6366f1',
         tension: 0.4,
-        fill: false
+        fill: type === 'line'
       }]
     },
-    options: { plugins: { title: { display: true, text: 'Evolución en el Tiempo' } } }
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: `Ventas Mensuales - Año ${year}`,
+          font: { size: 20 }
+        },
+        legend: { position: 'bottom' }
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          ticks: { callback: value => '$' + value.toLocaleString() }
+        }
+      }
+    }
   });
+}
 
-  // 4. Gráfico Radar
-  new Chart(document.getElementById('radarChart'), {
-    type: 'radar',
-    data: {
-      labels: ['Velocidad', 'Precisión', 'Creatividad', 'Consistencia', 'Esfuerzo'],
-      datasets: [{
-        label: 'Tu Perfil',
-        data: [puntuacion, puntuacion-1, puntuacion+1, puntuacion, puntuacion+2].map(v => Math.max(1, Math.min(10, v))),
-        backgroundColor: 'rgba(102, 126, 234, 0.2)',
-        borderColor: '#667eea'
-      }]
-    },
-    options: { plugins: { title: { display: true, text: 'Perfil de Habilidades' } } }
-  });
+// inicializar al cargar la página
+document.addEventListener('DOMContentLoaded', generarGrafico);
 
-  // Scroll suave hacia los gráficos
-  document.getElementById('resultados').scrollIntoView({ behavior: 'smooth' });
-});
+// actualizar al hacer clic
+document.getElementById('updateBtn').addEventListener('click', generarGrafico);
+
+// actualiza al cambiar año o tipo
+document.getElementById('year').addEventListener('change', generarGrafico);
+document.getElementById('chartType').addEventListener('change', generarGrafico);

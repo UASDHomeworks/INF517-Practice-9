@@ -3,76 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Formulario con Gráficos - Chart.js</title>
+  <title>Dashboard de Ventas Mensuales</title>
   
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
-  <!-- Enlazamos CSS y JS externos -->
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
 
   <div class="container">
-    <h1>Formulario con Gráficos Interactivos</h1>
-    
-    <div class="form-section">
-      <form id="datosForm">
-        <div class="field">
-          <label for="nombre">Nombre completo</label>
-          <input type="text" id="nombre" required>
-        </div>
-        
-        <div class="field">
-          <label for="edad">Edad</label>
-          <input type="number" id="edad" min="1" max="120" required>
-        </div>
-        
-        <div class="field">
-          <label for="categoria">Categoría</label>
-          <select id="categoria" required>
-            <option value="">Selecciona...</option>
-            <option value="A">Categoría A</option>
-            <option value="B">Categoría B</option>
-            <option value="C">Categoría C</option>
-            <option value="D">Categoría D</option>
-          </select>
-        </div>
-        
-        <div class="field">
-          <label for="puntuacion">Puntuación (1-10)</label>
-          <input type="number" id="puntuacion" min="1" max="10" required>
-        </div>
-        
-        <div class="field">
-          <label for="comentario">Comentario (opcional)</label>
-          <textarea id="comentario" rows="4"></textarea>
-        </div>
-        
-        <div class="submit-container">
-          <button type="submit">Generar Gráficos</button>
-        </div>
-      </form>
-    </div>
+    <header>
+      <h1>Dashboard de Ventas</h1>
+      <p>Visualiza las ventas mensuales generadas por la aplicación</p>
+    </header>
 
-    <!-- Resultados y gráficos -->
-    <div id="resultados" class="charts-section hidden">
-      <h2>¡Gracias <span id="verNombre"></span>!</h2>
-      <p class="info">Edad: <strong id="verEdad"></strong> años | 
-         Categoría: <strong id="verCategoria"></strong> | 
-         Puntuación: <strong id="verPuntuacion"></strong>/10</p>
-
-      <div class="charts-grid">
-        <canvas id="barChart"></canvas>
-        <canvas id="pieChart"></canvas>
-        <canvas id="lineChart"></canvas>
-        <canvas id="radarChart"></canvas>
+    <div class="controls">
+      <div class="control-group">
+        <label for="year">Seleccionar Año:</label>
+        <select id="year">
+          <option value="2023">2023</option>
+          <option value="2024" selected>2024</option>
+          <option value="2025">2025</option>
+        </select>
       </div>
 
-      <button onclick="location.reload()" class="reset-btn">Volver a empezar</button>
+      <div class="control-group">
+        <label for="chartType">Tipo de Gráfico:</label>
+        <select id="chartType">
+          <option value="bar">Barras</option>
+          <option value="line" selected>Línea</option>
+          <option value="doughnut">Circular</option>
+          <option value="polarArea">Área Polar</option>
+        </select>
+      </div>
+
+      <button id="updateBtn">Actualizar Gráfico</button>
+    </div>
+
+    <div class="chart-container">
+      <canvas id="salesChart"></canvas>
+    </div>
+
+    <div class="summary">
+      <p><strong>Total anual:</strong> <span id="totalSales">$0</span></p>
+      <p><strong>Mes con más ventas:</strong> <span id="bestMonth">-</span></p>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="./script.js"></script>
 </body>
 </html>
